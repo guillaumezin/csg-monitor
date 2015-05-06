@@ -1,8 +1,8 @@
 monitor_config = {
-    'interval': 60,
-    'recipients': ['michaelc@cullerton.com'],
-    'mail_user': 'mike@coresoftwaregroup.com',
-    'mail_pass': 'cully',
-    'mail_server': 'mail.coresoftwaregroup.com',
+    'interval': 300,
+    'recipients': ['email@server.com'],
+    'mail_user': 'email@server.com',
+    'mail_pass': 'mypassword',
+    'mail_server': 'smtp.gmail.com',
     'mail_server_port': 587
 }
