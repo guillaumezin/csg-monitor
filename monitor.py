@@ -48,7 +48,7 @@ class Monitor(object):
         self.recipients = monitor_config['recipients']
         self.servers = self.get_servers(server_list)
         self.heartbeatFile = monitor_config['heartbeatFile']
-		self.heartbeatHours = monitor_config['heartbeatHours']
+	self.heartbeatHours = monitor_config['heartbeatHours']
 
 	self.repeat_timer = RepeatTimer(self.interval,
                                    self.check_servers,
