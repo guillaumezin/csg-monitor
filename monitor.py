@@ -47,8 +47,17 @@ class Monitor(object):
         self.interval = monitor_config['interval']
         self.recipients = monitor_config['recipients']
         self.servers = self.get_servers(server_list)
+        self.heartbeatFile = monitor_config['heartbeatFile']
+		self.heartbeatHours = monitor_config['heartbeatHours']
+
+	self.repeat_timer = RepeatTimer(self.interval,
+                                   self.check_servers,
+                                   *args,
+                                   **kwargs)
+
         self.learn_ip()
         pibrella.button.pressed(self.btnPress)
+        self.heartbeat()
 
     def learn_ip(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -60,15 +69,12 @@ class Monitor(object):
 
     def run(self):
         print ("run: ")
-        repeat_timer = RepeatTimer(self.interval,
-                                   self.check_servers,
-                                   *args,
-                                   **kwargs)
-        repeat_timer.start()
+        self.repeat_timer.start()
 
     def check_servers(self, *args, **kwargs):
         """"""
         print ("check_servers: ")
+	self.heartbeat()
         for server in self.servers:
             print (server.name)
             thread.start_new_thread(server.check_status, ())
@@ -115,9 +121,9 @@ class Monitor(object):
 
     def btnPress(self,pin):
         self.reset()
-        time.sleep(3600)
-	
-    def reset(self, pin):
+	self.repeat_timer.cancel()
+
+    def reset(self):
         pibrella.light.stop()
         pibrella.buzzer.stop()
         for server in self.servers:
@@ -129,6 +135,29 @@ class Monitor(object):
     def alarm(pin):
         pibrella.light.pulse()
         pibrella.buzzer.buzz(50)
+
+    def heartbeat(self):
+    	filePath = self.heartbeatFile
+    	if(os.path.isfile(filePath)):
+    	    f = open(filePath,"r")
+    	    last = f.readline()
+            f.close()
+    	    print(last)
+            dt_last = datetime.strptime(last, '%b %d %Y %I:%M%p')
+            hours = math.floor(((datetime.now() - dt_last).total_seconds()) / 3600)
+            print(hours)
+            if(hours > self.heartbeatHours):
+                for recipient in self.recipients:
+                    mail(recipient, 'Pi Monitor Still Running','Pi Monitor still running fine')
+                    self.writeHeartbeat()
+    	else:
+    	    self.writeHeartbeat()
+	
+    def writeHeartbeat(self):
+        filePath = self.heartbeatFile
+        f = open(filePath,"w")
+        f.write(datetime.now().strftime('%b %d %Y %I:%M%p'))
+        f.close()
 
 class Server:
 
