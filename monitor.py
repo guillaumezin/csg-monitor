@@ -47,7 +47,7 @@ class Monitor(object):
         self.interval = monitor_config['interval']
         self.recipients = monitor_config['recipients']
         self.servers = self.get_servers(server_list)
-        self.heartbeatFile = monitor_config['heartbeatFile']
+	self.heartbeatFile = monitor_config['heartbeatFile']
 	self.heartbeatHours = monitor_config['heartbeatHours']
 
 	self.repeat_timer = RepeatTimer(self.interval,
@@ -210,3 +210,4 @@ if __name__ == "__main__":
     # need to update server list when necessary
     monitor = Monitor(server_list, monitor_config)
     monitor.run()
+    #end
