@@ -121,16 +121,15 @@ class Monitor(object):
 
     def btnPress(self,pin):
         self.reset()
-	self.repeat_timer.cancel()
-
-    def reset(self):
-        pibrella.light.stop()
-        pibrella.buzzer.stop()
         for server in self.servers:
             server.notified_fail = False
             server.fails = 0
             server.status = 'OK'
             server.assert_pass = True
+
+    def reset(self):
+        pibrella.light.stop()
+        pibrella.buzzer.stop()
 
     def alarm(pin):
         pibrella.light.pulse()
