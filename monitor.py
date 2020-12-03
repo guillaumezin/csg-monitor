@@ -6,7 +6,7 @@ import requests
 import smtplib
 import time
 import thread
-import pibrella
+# import pibrella
 import socket
 import os.path
 import math 
@@ -56,7 +56,7 @@ class Monitor(object):
                                    **kwargs)
 
         self.learn_ip()
-        pibrella.button.pressed(self.btnPress)
+        #pibrella.button.pressed(self.btnPress)
         self.heartbeat()
 
     def learn_ip(self):
@@ -85,6 +85,9 @@ class Monitor(object):
             self.send_down_servers_email(down_servers)
         else:
             self.reset()
+        up_servers = self.get_up_servers()
+        if len(up_servers) > 0:
+            self.send_up_servers_email(up_servers)
 
     def get_down_servers(self):
         down_servers = []
@@ -92,6 +95,13 @@ class Monitor(object):
             if server.status != 'OK' and server.fails >= server.max_fails and server.notified_fail == False:
                 down_servers.append(server)
         return down_servers
+
+    def get_up_servers(self):
+        up_servers = []
+        for server in self.servers:
+            if server.status == 'OK' and server.notified_fail == True:
+                up_servers.append(server)
+        return up_servers
 
     def send_down_servers_email(self, down_servers):
         self.alarm()
@@ -104,6 +114,19 @@ class Monitor(object):
                                         server.status)
             message += text
             server.notified_fail = True
+        for recipient in self.recipients:
+            mail(recipient, 'Pi Monitor', message)
+
+    def send_up_servers_email(self, down_servers):
+        print ("send_up_servers_email")
+        message = ''
+        for server in down_servers:
+            text = "%s %s %s - %s\n" % (server.name,
+                                        server.last_checked,
+                                        server.url,
+                                        server.status)
+            message += text
+            server.notified_fail = False
         for recipient in self.recipients:
             mail(recipient, 'Pi Monitor', message)
 
@@ -122,18 +145,20 @@ class Monitor(object):
     def btnPress(self,pin):
         self.reset()
         for server in self.servers:
-            server.notified_fail = False
+            #server.notified_fail = False
             server.fails = 0
             server.status = 'OK'
             server.assert_pass = True
 
     def reset(self):
-        pibrella.light.stop()
-        pibrella.buzzer.stop()
+        #pibrella.light.stop()
+        #pibrella.buzzer.stop()
+        pass
 
     def alarm(pin):
-        pibrella.light.pulse()
-        pibrella.buzzer.buzz(50)
+        #pibrella.light.pulse()
+        #pibrella.buzzer.buzz(50)
+        pass
 
     def heartbeat(self):
     	filePath = self.heartbeatFile
@@ -178,7 +203,7 @@ class Server:
 
         self.last_checked = datetime.now()
         try:
-            r = requests.get(self.url, timeout=self.timeout)
+            r = requests.get(self.url, timeout=self.timeout, verify=False)
 
         except (requests.exceptions.ConnectionError,
                 requests.exceptions.Timeout) as e:
@@ -192,7 +217,7 @@ class Server:
                 if self.assert_string in r.text:
                     self.status = 'OK'
                     self.fails = 0
-                    self.notified_fail = False
+                    #self.notified_fail = False
                     self.assert_pass = True
                 else:
                     self.status = 'Assert Failed'

@@ -1,12 +1,12 @@
 server_list = [
-    {'name': 'Google',
-     'url': 'https://google.com',
+    {'name': 'StJean',
+     'url': 'https://choletstjean.freeddns.org',
      'timeout': 300,
      'max_fails': 2,
-     'assert_string': 'Google Inc.'},
-    {'name': 'Bing',
-     'url': 'http://www.bing.com',
+     'assert_string': 'Please Login'},
+    {'name': 'SteFamille',
+     'url': 'https://choletstefamille.freeddns.org',
      'timeout': 300,
      'max_fails': 2,
-     'assert_string': 'Make Bing my homepage'}
+     'assert_string': 'Please Login'}
 ]
